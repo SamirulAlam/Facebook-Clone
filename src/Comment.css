@@ -1,0 +1,9 @@
+.comment{
+    display:flex;
+    align-items:center;
+    padding:5px;
+}
+
+.comment > p{
+    margin-left:5px
+}

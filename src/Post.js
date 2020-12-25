@@ -8,10 +8,14 @@ import ExpandMoreOutlined from '@material-ui/icons/ExpandMoreOutlined'
 import AccountCircleIclon from '@material-ui/icons/AccountCircle'
 import { useStateValue } from './StateProvider';
 import db from './firebase';
+import Comment from './Comment';
+import firebase from 'firebase';
+
 
 const Post=forwardRef(({postId, image,profilePic,username,timestamp,message},ref)=> {
     const [{user},dispatch]=useStateValue();
     const [isClicked,setIsClicked] =useState(false);
+    const [comment,setComment]=useState("")
     const [comments,setComments] = useState([]);
 
     const handleComment=()=>{
@@ -20,17 +24,23 @@ const Post=forwardRef(({postId, image,profilePic,username,timestamp,message},ref
     }
 
     useEffect(()=>{
-        db.collection("posts").doc(postId).collection("comments").onSnapshot(snapshot=>(
+        db.collection("posts").doc(postId).collection("comments").orderBy("timestamp","asc").onSnapshot(snapshot=>(
             setComments(snapshot.docs.map(doc=>({
                 //id: doc.id,
                 data:doc.data()
             })))
         ))
-    },[])
+    },[comments])
 
     const postComment=(e)=>{
         e.preventDefault()
-        setComments("");
+
+        db.collection("posts").doc(postId).collection("comments").add({
+            text:comment,
+            timestamp:firebase.firestore.FieldValue.serverTimestamp()
+        })
+        setComment("");
+        setIsClicked(false)
     }
     return (
         <div className="post" ref={ref}>
@@ -48,14 +58,17 @@ const Post=forwardRef(({postId, image,profilePic,username,timestamp,message},ref
                 <img src={image} alt="" />
             </div>
             {comments.map(comment=>(
-                <div className="post__comment">
-                <Avatar src={user.photoURL} />
-                <p>{comment.data.text}</p>
-            </div>
+                <Comment 
+                    text={comment.data.text}
+                />
+            //     <div className="post__comment">
+            //     <Avatar src={user.photoURL} />
+            //     <p>{}</p>
+            // </div>
             ))}
             {isClicked ? (
                 <form className="post__inputComment">
-                <input value={comments} onChange={(e)=>setComments(e.target.value)} type="text" />
+                <input value={comment} onChange={(e)=>setComment(e.target.value)} type="text" />
                 <button type="submit" onClick={postComment}>Send</button>
             </form>
             ):(null)}
