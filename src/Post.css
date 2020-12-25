@@ -63,3 +63,25 @@
     background-color:#eff2f5;
     border-radius: 10px;
 }
+
+.post__comment{
+    display: flex;
+    padding:10px;
+    align-items: center;
+}
+
+.post__comment > p{
+    margin-left:5px;
+}
+
+.post__inputComment{
+    display: flex;
+}
+
+.post__inputComment > input{
+    flex: 1;
+}
+
+.post__inputComment > button{
+    display:none;
+}
